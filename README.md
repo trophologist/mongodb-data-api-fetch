@@ -2,30 +2,28 @@
   <img src="/logo.png" height="120px" />
 </p>
 
-# mongodb-data-api
+# mongodb-data-api-fetch
 
-[![GitHub stars](https://img.shields.io/github/stars/surmon-china/mongodb-data-api.svg?style=for-the-badge)](https://github.com/surmon-china/mongodb-data-api/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/trophologist/mongodb-data-api-fetch.svg?style=for-the-badge)](https://github.com/trophologist/mongodb-data-api-fetch/stargazers)
 &nbsp;
-[![npm](https://img.shields.io/npm/v/mongodb-data-api?color=c7343a&label=npm&style=for-the-badge)](https://www.npmjs.com/package/mongodb-data-api)
+[![npm](https://img.shields.io/npm/v/mongodb-data-api-fetch?color=c7343a&label=npm&style=for-the-badge)](https://www.npmjs.com/package/mongodb-data-api-fetch)
 &nbsp;
-[![Test Codecov](https://img.shields.io/codecov/c/github/surmon-china/mongodb-data-api?style=for-the-badge)](https://codecov.io/gh/surmon-china/mongodb-data-api)
-&nbsp;
-[![GitHub license](https://img.shields.io/github/license/surmon-china/mongodb-data-api.svg?style=for-the-badge)](/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/trophologist/mongodb-data-api-fetch.svg?style=for-the-badge)](/LICENSE)
 
-MongoDB Atlas [Data API](https://www.mongodb.com/docs/atlas/api/data-api/) SDK for Node.js.
+MongoDB Atlas [Data API](https://www.mongodb.com/docs/atlas/api/data-api/) SDK for Cloudflare Workers.
 
----
+Fully compatible with https://github.com/surmon-china/mongodb-data-api/
 
 ### Installation
 
 ```bash
-npm install mongodb-data-api --save
+npm install mongodb-data-api-fetch --save
 ```
 
 or
 
 ```bash
-yarn add mongodb-data-api
+yarn add mongodb-data-api-fetch
 ```
 
 ### Usage
@@ -33,12 +31,13 @@ yarn add mongodb-data-api
 #### Init
 
 ```ts
-import { createMongoDBDataAPI } from 'mongodb-data-api'
+import { createMongoDBDataAPI } from 'mongodb-data-api-fetch'
 
 // init by URL Endpoint
 const api = createMongoDBDataAPI({
   apiKey: '<your_mongodb_api_key>',
-  urlEndpoint: 'https://data.mongodb-api.com/app/<your_mongodb_app_id>/endpoint/data/v1'
+  urlEndpoint:
+    'https://data.mongodb-api.com/app/<your_mongodb_app_id>/endpoint/data/v1'
 })
 
 // or init by app ID
@@ -76,52 +75,40 @@ See [MongoDB Data API Resources](https://www.mongodb.com/docs/atlas/api/data-api
 1. find a single document
 
 ```ts
-api
-  .findOne({
-    dataSource: '<target_cluster_name>',
-    database: '<target_database_name>',
-    collection: '<target_collection_name>',
-    filter: { name: 'Surmon' }
-  })
-  .then((result) => {
-    console.log(result.document)
-  })
+const { document } = await api.findOne({
+  dataSource: '<target_cluster_name>',
+  database: '<target_database_name>',
+  collection: '<target_collection_name>',
+  filter: { name: 'Surmon' }
+})
 ```
 
 2. insert a single document
 
 ```ts
-api
-  .insertOne({
-    dataSource: '<target_cluster_name>',
-    database: '<target_database_name>',
-    collection: '<target_collection_name>',
-    document: {
-      name: 'Surmon',
-      age: 19
-    }
-  })
-  .then((result) => {
-    console.log(result.insertedId)
-  })
+const { insertedId } = await api.insertOne({
+  dataSource: '<target_cluster_name>',
+  database: '<target_database_name>',
+  collection: '<target_collection_name>',
+  document: {
+    name: 'Surmon',
+    age: 19
+  }
+})
 ```
 
 3. run an aggregation pipeline
 
 ```ts
-api
-  .aggregate({
-    dataSource: '<target_cluster_name>',
-    database: '<target_database_name>',
-    collection: '<target_collection_name>',
-    pipeline: [
-      { $match: { status: 'urgent' } },
-      { $group: { _id: '$productName', sumQuantity: { $sum: '$quantity' } } }
-    ]
-  })
-  .then((result) => {
-    console.log(result.documents)
-  })
+const { document } = await api.aggregate({
+  dataSource: '<target_cluster_name>',
+  database: '<target_database_name>',
+  collection: '<target_collection_name>',
+  pipeline: [
+    { $match: { status: 'urgent' } },
+    { $group: { _id: '$productName', sumQuantity: { $sum: '$quantity' } } }
+  ]
+})
 ```
 
 #### Method chaining
@@ -193,25 +180,9 @@ const customerCollection = new MongoDBDataAPI<CustomerDocument>(
 const customer = await customerCollection.findOne({ ... })
 ```
 
-### Development
-
-```bash
-# install dependencies
-yarn
-
-# lint
-yarn lint
-
-# test
-yarn test
-
-# build
-yarn build
-```
-
 ### Changelog
 
-Detailed changes for each release are documented in the [release notes](/CHANGELOG.md).
+Please refer to https://github.com/surmon-china/mongodb-data-api/
 
 ### License
 
