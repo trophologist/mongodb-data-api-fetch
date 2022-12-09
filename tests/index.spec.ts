@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { createMongoDBDataAPI, MongoDBDataAPI } from '../src'
 
 test('<type> should be function type', () => {
@@ -57,19 +56,6 @@ test('<runtime> should be error', async () => {
     })
     await api.$cluster('test').$database('test').$collection('test').find()
   } catch (error) {
-    expect(axios.isAxiosError(error)).toBeFalsy()
-  }
-})
-
-test('<runtime> should be axios error', async () => {
-  try {
-    const api = createMongoDBDataAPI({
-      apiKey: 'test_api_key',
-      urlEndpoint: 'https://data.mongodb-api.com/app/test_app/endpoint/data/v1'
-    })
-    await api.$cluster('test').$database('test').$collection('test').findOne()
-  } catch (error: any) {
-    expect(error.name).toBe('AxiosError')
-    expect(error.status).toBe(404)
+    expect(error).toBeTruthy()
   }
 })

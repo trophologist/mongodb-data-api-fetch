@@ -1,20 +1,28 @@
 {
-  "name": "mongodb-data-api",
-  "version": "0.4.0",
-  "description": "MongoDB atlas data API SDK for Node.js",
+  "name": "mongodb-data-api-fetch",
+  "version": "0.1.0",
+  "description": "MongoDB Atlas Data API SDK for Cloudflare Workers",
   "author": "Surmon",
+  "contributors": [
+    {
+      "name": "trophologist",
+      "email": "info@trophologist.com",
+      "url": "https://trophologist.com"
+    }
+  ],
   "license": "MIT",
   "keywords": [
-    "MongoDB data API",
-    "MongoDB cloud data API",
-    "MongoDB Atlas data API SDK"
+    "MongoDB",
+    "MongoDB Data API",
+    "MongoDB Atlas Data API SDK",
+    "Cloudflare Workers",
+    "Fetch"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/surmon-china/mongodb-data-api.git"
+    "url": "https://github.com/trophologist/mongodb-data-api-fetch.git"
   },
   "files": [
-    "CHANGELOG.md",
     "dist"
   ],
   "sideEffects": false,
@@ -32,7 +40,6 @@
     "release": ". ./scripts/release.sh"
   },
   "dependencies": {
-    "axios": "^1.1.0",
     "mongodb": "^4.12.0"
   },
   "devDependencies": {
@@ -47,6 +54,7 @@
     "jest": "^29.3.0",
     "prettier": "^2.5.1",
     "ts-jest": "^29.0.0",
-    "typescript": "^4.9.0"
+    "typescript": "^4.9.0",
+    "jest-environment-jsdom": "^29.3.1"
   }
 }

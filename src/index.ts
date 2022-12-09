@@ -1,4 +1,3 @@
-import _axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import type { Filter, FindOptions, Sort, UpdateFilter, Document } from 'mongodb'
 
 // https://github.com/surmon-china/mongodb-data-api/pull/3/files @maxfi
@@ -58,19 +57,17 @@ export type Config = XOR<UrlEndpointConfig, PackEndpointConfig>
 export class MongoDBDataAPI<InnerDoc = Document> {
   #config: Config
   #baseParams: BaseParams
-  #axios: AxiosInstance
 
-  constructor(config: Config, baseParams?: BaseParams, axios?: AxiosInstance) {
+  constructor (config: Config, baseParams?: BaseParams) {
     if (!config.apiKey) {
       throw new Error('Invalid API key!')
     }
 
     this.#config = config
     this.#baseParams = baseParams || {}
-    this.#axios = axios || _axios.create()
   }
 
-  #newAPI<D>(params: BaseParams) {
+  #newAPI<D> (params: BaseParams) {
     return new MongoDBDataAPI<D>(
       { ...this.#config },
       {
@@ -81,7 +78,7 @@ export class MongoDBDataAPI<InnerDoc = Document> {
   }
 
   /** Select a cluster. */
-  public $cluster(clusterName: string) {
+  public $cluster (clusterName: string) {
     return this.#newAPI<InnerDoc>({ dataSource: clusterName }) as Omit<
       MongoDBDataAPI<InnerDoc>,
       '$cluster' | '$collection'
@@ -89,7 +86,7 @@ export class MongoDBDataAPI<InnerDoc = Document> {
   }
 
   /** Select a database. */
-  public $database(database: string) {
+  public $database (database: string) {
     return this.#newAPI<InnerDoc>({ database }) as Omit<
       MongoDBDataAPI<InnerDoc>,
       '$cluster' | '$database'
@@ -97,7 +94,7 @@ export class MongoDBDataAPI<InnerDoc = Document> {
   }
 
   /** Select a collection. */
-  public $collection<Doc = InnerDoc>(collection: string) {
+  public $collection<Doc = InnerDoc> (collection: string) {
     return this.#newAPI<Doc>({ collection }) as Omit<
       MongoDBDataAPI<Doc>,
       '$cluster' | '$database' | '$collection'
@@ -108,10 +105,9 @@ export class MongoDBDataAPI<InnerDoc = Document> {
    * Execute a API action.
    * @link https://www.mongodb.com/docs/atlas/api/data-api-resources/
    */
-  public $$action<Result = unknown>(
+  public $$action<Result = unknown> (
     type: string,
-    params: BaseParams = {},
-    axiosConfig?: AxiosRequestConfig
+    params: BaseParams = {}
   ): Promise<Result> {
     const mergedParams = {
       ...this.#baseParams,
@@ -134,28 +130,29 @@ export class MongoDBDataAPI<InnerDoc = Document> {
       return `${endpoint}/action/${action}`
     }
 
-    return this.#axios({
-      method: 'post',
-      data: JSON.stringify(mergedParams),
-      url: this.#config.urlEndpoint
+    return fetch(
+      this.#config.urlEndpoint
         ? getActionUrl(this.#config.urlEndpoint, type)
         : getActionUrl(
             getUrlEndpoint(this.#config.appId!, this.#config.region, this.#config.cloud),
             type
           ),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Request-Headers': '*',
-        'api-key': this.#config.apiKey
-      },
-      ...axiosConfig
-    })
-      .then((response) => {
-        return response.data
+      {
+        method: 'post',
+        body: JSON.stringify(mergedParams),
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Request-Headers': '*',
+          'api-key': this.#config.apiKey
+        }
+      }
+    )
+      .then((response: any) => {
+        return response.json()
       })
-      .catch((error) => {
+      .catch((error: any) => {
         // https://www.mongodb.com/docs/atlas/api/data-api-resources/#error-codes
-        return Promise.reject(_axios.isAxiosError(error) ? error.toJSON() : error)
+        return Promise.reject(error)
       })
   }
 
@@ -163,7 +160,7 @@ export class MongoDBDataAPI<InnerDoc = Document> {
    * Find a Single Document.
    * @link https://www.mongodb.com/docs/atlas/api/data-api-resources/#find-a-single-document
    */
-  public findOne<D = InnerDoc, T = NoInfer<D>>(
+  public findOne<D = InnerDoc, T = NoInfer<D>> (
     params?: ExtendBaseParams<{
       filter?: Filter<T>
       projection?: Projection
@@ -176,7 +173,7 @@ export class MongoDBDataAPI<InnerDoc = Document> {
    * Find Multiple Documents.
    * @link https://www.mongodb.com/docs/atlas/api/data-api-resources/#find-multiple-documents
    */
-  public find<D = InnerDoc, T = NoInfer<D>>(
+  public find<D = InnerDoc, T = NoInfer<D>> (
     params?: ExtendBaseParams<{
       filter?: Filter<T>
       projection?: Projection
@@ -192,7 +189,7 @@ export class MongoDBDataAPI<InnerDoc = Document> {
    * Insert a Single Document.
    * @link https://www.mongodb.com/docs/atlas/api/data-api-resources/#insert-a-single-document
    */
-  public insertOne<D = InnerDoc, T = NoInfer<D>>(
+  public insertOne<D = InnerDoc, T = NoInfer<D>> (
     params: ExtendBaseParams<{ document: AnyKeys<T> | Document }>
   ) {
     return this.$$action<{ insertedId: string }>('insertOne', params)
@@ -202,7 +199,7 @@ export class MongoDBDataAPI<InnerDoc = Document> {
    * Insert Multiple Documents.
    * @link https://www.mongodb.com/docs/atlas/api/data-api-resources/#insert-multiple-documents
    */
-  public insertMany<D = InnerDoc, T = NoInfer<D>>(
+  public insertMany<D = InnerDoc, T = NoInfer<D>> (
     params: ExtendBaseParams<{ documents: Array<AnyKeys<T> | Document> }>
   ) {
     return this.$$action<{ insertedIds: Array<string> }>('insertMany', params)
@@ -212,7 +209,7 @@ export class MongoDBDataAPI<InnerDoc = Document> {
    * Update a Single Document.
    * @link https://www.mongodb.com/docs/atlas/api/data-api-resources/#update-a-single-document
    */
-  public updateOne<D = InnerDoc, T = NoInfer<D>>(
+  public updateOne<D = InnerDoc, T = NoInfer<D>> (
     params: ExtendBaseParams<{
       filter: Filter<T>
       update: UpdateFilter<T>
@@ -230,7 +227,7 @@ export class MongoDBDataAPI<InnerDoc = Document> {
    * Update Multiple Documents.
    * @link https://www.mongodb.com/docs/atlas/api/data-api-resources/#update-multiple-documents
    */
-  public updateMany<D = InnerDoc, T = NoInfer<D>>(
+  public updateMany<D = InnerDoc, T = NoInfer<D>> (
     params: ExtendBaseParams<{
       filter: Filter<T>
       update: UpdateFilter<T>
@@ -248,7 +245,7 @@ export class MongoDBDataAPI<InnerDoc = Document> {
    * Replace a Single Document.
    * @link https://www.mongodb.com/docs/atlas/api/data-api-resources/#replace-a-single-document
    */
-  public replaceOne<D = InnerDoc, T = NoInfer<D>>(
+  public replaceOne<D = InnerDoc, T = NoInfer<D>> (
     params: ExtendBaseParams<{
       filter: Filter<T>
       replacement: any
@@ -266,7 +263,7 @@ export class MongoDBDataAPI<InnerDoc = Document> {
    * Delete a Single Document.
    * @link https://www.mongodb.com/docs/atlas/api/data-api-resources/#delete-a-single-document
    */
-  public deleteOne<D = InnerDoc, T = NoInfer<D>>(
+  public deleteOne<D = InnerDoc, T = NoInfer<D>> (
     params: ExtendBaseParams<{ filter: Filter<T> }>
   ) {
     return this.$$action<{ deletedCount: number }>('deleteOne', params)
@@ -276,7 +273,7 @@ export class MongoDBDataAPI<InnerDoc = Document> {
    * Delete Multiple Documents.
    * @link https://www.mongodb.com/docs/atlas/api/data-api-resources/#delete-multiple-documents
    */
-  public deleteMany<D = InnerDoc, T = NoInfer<D>>(
+  public deleteMany<D = InnerDoc, T = NoInfer<D>> (
     params: ExtendBaseParams<{ filter: Filter<T> }>
   ) {
     return this.$$action<{ deletedCount: number }>('deleteMany', params)
@@ -286,13 +283,13 @@ export class MongoDBDataAPI<InnerDoc = Document> {
    * Run an Aggregation Pipeline.
    * @link https://www.mongodb.com/docs/atlas/api/data-api-resources/#run-an-aggregation-pipeline
    */
-  public aggregate<T extends Array<any>>(
+  public aggregate<T extends Array<any>> (
     params: ExtendBaseParams<{ pipeline: Array<Document> }>
   ) {
     return this.$$action<{ documents: T }>('aggregate', params)
   }
 }
 
-export const createMongoDBDataAPI = (config: Config, axios?: AxiosInstance) => {
-  return new MongoDBDataAPI(config, void 0, axios)
+export const createMongoDBDataAPI = (config: Config) => {
+  return new MongoDBDataAPI(config, void 0)
 }

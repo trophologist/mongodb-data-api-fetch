@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "esnext",
     "target": "ES6",
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "webworker"],
     "moduleResolution": "node",
     "strict": true,
     "strictNullChecks": true,
